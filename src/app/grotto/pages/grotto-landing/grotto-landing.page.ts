@@ -95,10 +95,8 @@ export class GrottoLandingPage implements OnInit, OnDestroy {
       // Updates chedda balance according to account selected 
       let eth:any = window.ethereum
       eth.on('accountsChanged', (accounts: any) => {
-        if (accounts.length > 0) {
           this.loadCheddaStats()
           this.loadVeCheddaStats()
-        }
       });
     }
 
