@@ -25,6 +25,17 @@ export class WalletProviderService {
 
   constructor() {
     this.initializeNetworkConnection()
+
+    // Checks if acount is changed or disconnected
+    // Updates account address 
+    let eth:any = window.ethereum;
+    eth.on('accountsChanged', (accounts: any) => {
+      if (accounts.length > 0) {
+          this.setCurrentAccount(accounts[0])
+      }else{
+        this.setCurrentAccount(null)
+      }
+    });
   }
 
   async connect(): Promise<boolean> {

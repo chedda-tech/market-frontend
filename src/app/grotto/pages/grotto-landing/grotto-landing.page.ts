@@ -89,7 +89,18 @@ export class GrottoLandingPage implements OnInit, OnDestroy {
     private xChedda: StakedCheddaService,
     private veChedda: VeCheddaService,
     private alert: GlobalAlertService,
-    private loadingController: LoadingController) { }
+    private loadingController: LoadingController) {
+
+      // Checks if acount is changed or disconnected
+      // Updates chedda balance according to account selected 
+      let eth:any = window.ethereum
+      eth.on('accountsChanged', (accounts: any) => {
+        if (accounts.length > 0) {
+          this.loadCheddaStats()
+          this.loadVeCheddaStats()
+        }
+      });
+    }
 
 
   async ngOnInit() {

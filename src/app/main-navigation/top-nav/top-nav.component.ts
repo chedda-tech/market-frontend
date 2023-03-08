@@ -83,7 +83,7 @@ export class TopNavComponent implements OnInit, OnDestroy {
   
       // Watch for provider disconnection
       eth.on('accountsChanged', (accounts: any) => {
-        if (accounts[0]) {
+        if (accounts.length > 0) {
           this.account = accounts[0]
         }else{
           // Metamask provider is disconnected
