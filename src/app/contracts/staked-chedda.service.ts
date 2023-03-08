@@ -54,7 +54,7 @@ export class StakedCheddaService {
     if (!amount) {
       amount = await this.stakedCheddaContract.totalSupply();
     }
-    this.stakedCheddaContract.connect(this.wallet.signer).approve(spender, amount)
+    return this.stakedCheddaContract.connect(this.wallet.signer).approve(spender, amount)
   }
 
   address(): string {

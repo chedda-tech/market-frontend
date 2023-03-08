@@ -48,7 +48,7 @@ export class CheddaService {
     if (!amount) {
       amount = await this.cheddaContract.totalSupply();
     }
-    this.cheddaContract.connect(this.wallet.signer).approve(spender, amount)
+    return this.cheddaContract.connect(this.wallet.signer).approve(spender, amount)
   }
 
   address(): string {
