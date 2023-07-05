@@ -59,7 +59,7 @@ export class BorrowLandingPage implements OnInit, OnDestroy {
     })
 
     this.netWorkChangeSubscription = this.environmentService.environmentSubject.subscribe(async network => {
-      if(network && (network !== this.environmentService.environment)){
+      if(network){
         await this.vaultStatsService.loadVaultStats();
       }
     })
