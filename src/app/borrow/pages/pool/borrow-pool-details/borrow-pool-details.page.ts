@@ -560,9 +560,9 @@ export class BorrowPoolDetailsPage implements OnInit, OnDestroy {
     });
 
     this.netWorkChangeSubscription = this.environmentService.environmentSubject.subscribe(async network => {
-      if(network && (network !== this.environmentService.environment)){
+      const chainId = await (window as any).ethereum.request({ method: 'eth_chainId' });
+      if(network && (network.config.networkParams.chainId.toLocaleLowerCase() !== chainId)){
         this.navigateBack();
-        return
       }
     })
   }
