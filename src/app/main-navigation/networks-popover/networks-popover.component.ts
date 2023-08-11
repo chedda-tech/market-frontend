@@ -37,7 +37,7 @@ export class NetworksPopoverComponent implements OnInit {
       icon: '/assets/logos/matic-logo.png'
     },
     {
-      name: 'Arbitrum Goerli',
+      name: 'Arbitrum',
       url: 'https://testnet-app.chedda.finance',
       icon: '/assets/logos/arbitrum-logo.png'
     },
