@@ -36,11 +36,11 @@ export class NetworksPopoverComponent implements OnInit {
       url: 'https://testnet-polygon.chedda.store',
       icon: '/assets/logos/matic-logo.png'
     },
-    // {
-    //   name: 'Telos Testnet',
-    //   url: 'https://telos-hackathon.chedda.store',
-    //   icon: '/assets/logos/tlos-logo.png'
-    // },
+    {
+      name: 'Arbitrum Goerli',
+      url: 'https://testnet-app.chedda.finance',
+      icon: '/assets/logos/arbitrum-logo.png'
+    },
   ]
   isOpenNetworkMenu: boolean;
   netWorkChangeSubscription: Subscription;
