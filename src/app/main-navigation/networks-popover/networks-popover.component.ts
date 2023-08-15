@@ -37,6 +37,11 @@ export class NetworksPopoverComponent implements OnInit {
       icon: '/assets/logos/matic-logo.png'
     },
     {
+      name: 'Ethereum',
+      url: 'https://testnet-app.chedda.finance',
+      icon: '/assets/logos/ethereum-logo.png'
+    },
+    {
       name: 'Arbitrum',
       url: 'https://testnet-app.chedda.finance',
       icon: '/assets/logos/arbitrum-logo.png'
