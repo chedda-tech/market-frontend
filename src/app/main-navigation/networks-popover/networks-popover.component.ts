@@ -11,87 +11,78 @@ import { environments } from 'src/environments/environments';
   templateUrl: './networks-popover.component.html',
   styleUrls: ['./networks-popover.component.scss'],
 })
-
 export class NetworksPopoverComponent implements OnInit {
-
-  env 
+  env;
   networkList = [
-    // {
-    //   name: 'Avalanche Testnet',
-    //   url: 'https://testnet-avalanche.chedda.store',
-    //   icon: '/assets/logos/avalanche-avax-logo.png'
-    // },
-    // {
-    //   name: 'Harmony Testnet',
-    //   url: 'https://testnet-harmony.chedda.store',
-    //   icon: '/assets/logos/harmony-logo.png'
-    // },
     {
-      name: 'Oasis',
-      url: 'https://testnet-oasis.chedda.store',
-      icon: '/assets/logos/wrose-logo.png'
-    },
-    {
-      name: 'Polygon',
-      url: 'https://testnet-polygon.chedda.store',
-      icon: '/assets/logos/matic-logo.png'
+      name: 'Arbitrum',
+      url: 'https://testnet-app.chedda.finance',
+      icon: '/assets/logos/arbitrum-logo.png',
     },
     {
       name: 'Ethereum',
       url: 'https://testnet-app.chedda.finance',
-      icon: '/assets/logos/ethereum-logo.png'
+      icon: '/assets/logos/ethereum-logo.png',
     },
     {
-      name: 'Arbitrum',
-      url: 'https://testnet-app.chedda.finance',
-      icon: '/assets/logos/arbitrum-logo.png'
+      name: 'Oasis',
+      url: 'https://testnet-oasis.chedda.store',
+      icon: '/assets/logos/wrose-logo.png',
     },
-  ]
+    {
+      name: 'Polygon',
+      url: 'https://testnet-polygon.chedda.store',
+      icon: '/assets/logos/matic-logo.png',
+    },
+  ];
   isOpenNetworkMenu: boolean;
   netWorkChangeSubscription: Subscription;
   selectedNetwork: string;
   loader: any;
-  networkSwitched: boolean = false
+  networkSwitched: boolean = false;
 
   constructor(
     private environmentService: EnvironmentProviderService,
     private vaultStatsService: VaultStatsService,
-    private provider: WalletProviderService,
-    ) { 
+    private provider: WalletProviderService
+  ) {
     this.env = this.environmentService.environment;
-    this.selectedNetwork = this.env.config.ui.chainName
+    this.selectedNetwork = this.env.config.ui.chainName;
   }
 
   ngOnInit() {
     this.listenToEvents();
   }
 
-  ngOnDestroy(){
+  ngOnDestroy() {
     this.netWorkChangeSubscription?.unsubscribe;
   }
 
-  openNetworkMenu(){
-    this.isOpenNetworkMenu = !this.isOpenNetworkMenu
+  openNetworkMenu() {
+    this.isOpenNetworkMenu = !this.isOpenNetworkMenu;
   }
 
-  async onNetworkSelected(network){
-    const selectedEnvironment = environments.find(item => item.identifier === network);
-    let eth:any = window.ethereum
-    if(eth){
-      await this.provider.addNetwork(selectedEnvironment)
-    }else{
-      this.environmentService.loadEnvironment(selectedEnvironment)
+  async onNetworkSelected(network) {
+    const selectedEnvironment = environments.find(
+      (item) => item.identifier === network
+    );
+    let eth: any = window.ethereum;
+    if (eth) {
+      await this.provider.addNetwork(selectedEnvironment);
+    } else {
+      this.environmentService.loadEnvironment(selectedEnvironment);
     }
     this.isOpenNetworkMenu = false;
   }
 
-  private async listenToEvents(){
-    this.netWorkChangeSubscription = this.environmentService.environmentSubject.subscribe(async network => {
-      if(network){
-        this.env = network
-        this.vaultStatsService.loadVaultStats();
-      }
-    })
+  private async listenToEvents() {
+    this.netWorkChangeSubscription =
+      this.environmentService.environmentSubject.subscribe(async (network) => {
+        if (network) {
+          this.env = network;
+          this.vaultStatsService.loadVaultStats();
+        }
+      });
   }
 
   @HostListener('document:click', ['$event'])
