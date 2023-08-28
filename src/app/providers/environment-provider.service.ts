@@ -15,8 +15,8 @@ export class EnvironmentProviderService {
   }
 
   async startApp() {
-    let eth:any = window.ethereum
-    if(eth){
+    let eth: any = window.ethereum;
+    if (eth) {
       const chainId = await eth.request({
         method: 'eth_chainId',
       });
@@ -36,9 +36,9 @@ export class EnvironmentProviderService {
   }
 
   async setupListeners() {
-    let eth = (window as any).ethereum
+    let eth = (window as any).ethereum;
 
-    if(eth){
+    if (eth) {
       (window as any).ethereum.on('chainChanged', async () => {
         const chainId = await (window as any).ethereum.request({
           method: 'eth_chainId',
@@ -52,8 +52,8 @@ export class EnvironmentProviderService {
           console.log('No detected environment');
         }
       });
-    }else{
-      this.loadSavedEnvironment()
+    } else {
+      this.loadSavedEnvironment();
     }
   }
 
