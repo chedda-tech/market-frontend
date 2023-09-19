@@ -1,4 +1,10 @@
-import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NavController } from '@ionic/angular';
 import { BigNumber, ethers } from 'ethers';
@@ -8,16 +14,17 @@ import { TokenService } from 'src/app/contracts/token.service';
 import { LendingPool } from 'src/app/lend/lend.models';
 import { WalletProviderService } from 'src/app/providers/wallet-provider.service';
 import { GlobalAlertService } from 'src/app/shared/global-alert.service';
-import { EnvironmentProviderService } from 'src/app/providers/environment-provider.service';import { VaultStatsService } from 'src/app/providers/vault-stats.service';
+import { EnvironmentProviderService } from 'src/app/providers/environment-provider.service';
+import { VaultStatsService } from 'src/app/providers/vault-stats.service';
 import { ModalController } from '@ionic/angular';
 import { LoadingModalComponent } from 'src/app/shared/components/loading-modal/loading-modal.component';
 
 export interface VaultStats {
-  borrowApr: number
-  depositApr: number
-  rewardsApr: number
-  liquidity: BigNumber
-  utilization: BigNumber
+  borrowApr: number;
+  depositApr: number;
+  rewardsApr: number;
+  liquidity: BigNumber;
+  utilization: BigNumber;
 }
 @Component({
   selector: 'app-lend-pool-details',
@@ -25,35 +32,34 @@ export interface VaultStats {
   styleUrls: ['./lend-pool-details.page.scss'],
 })
 export class LendPoolDetailsPage implements OnInit, OnDestroy {
-
-  @ViewChild('depositInput') depositInput:ElementRef;
-  @ViewChild('withdrawInput') withdrawInput:ElementRef;
-  isApproved = false
-  asset
-  vaultContract
-  stats?: VaultStats
-  assetApprovalSubjet = new BehaviorSubject(null)
-  approvalEventListener
-  depositEventListener
-  withdrawEventListener
-  walletSubscription?: Subscription
-  myAssetBalance
-  myVaultSharesBalance = '0'
-  totalVaultAssets = '0'
-  assetSymbol
-  vaultTokenSymbol
-  loader?
-  utilizationRate = '0'
-  depositApy = '0'
-  rewardsApy = '0'
-  utilizationPrecision = BigNumber.from(1000000000000)
-  aprPrecision = BigNumber.from(100000000000)
-  routeSubscription: Subscription
-  pool: LendingPool
+  @ViewChild('depositInput') depositInput: ElementRef;
+  @ViewChild('withdrawInput') withdrawInput: ElementRef;
+  isApproved = false;
+  asset;
+  vaultContract;
+  stats?: VaultStats;
+  assetApprovalSubjet = new BehaviorSubject(null);
+  approvalEventListener;
+  depositEventListener;
+  withdrawEventListener;
+  walletSubscription?: Subscription;
+  myAssetBalance;
+  myVaultSharesBalance = '0';
+  totalVaultAssets = '0';
+  assetSymbol;
+  vaultTokenSymbol;
+  loader?;
+  utilizationRate = '0';
+  depositApy = '0';
+  rewardsApy = '0';
+  utilizationPrecision = BigNumber.from(1000000000000);
+  aprPrecision = BigNumber.from(100000000000);
+  routeSubscription: Subscription;
+  pool: LendingPool;
   isDepositCheddaTab: boolean = true;
 
   constructor(
-    private tokenService: TokenService, 
+    private tokenService: TokenService,
     private vaultService: CheddaBaseTokenVaultService,
     private vaultStatsService: VaultStatsService,
     private wallet: WalletProviderService,
@@ -61,12 +67,12 @@ export class LendPoolDetailsPage implements OnInit, OnDestroy {
     private router: Router,
     private navController: NavController,
     private alert: GlobalAlertService,
-    private modalController: ModalController, 
+    private modalController: ModalController,
     private environmentService: EnvironmentProviderService
-    ) { }
+  ) {}
 
   async ngOnInit() {
-    await this.setup()
+    await this.setup();
   }
 
   ngOnDestroy(): void {
@@ -74,159 +80,194 @@ export class LendPoolDetailsPage implements OnInit, OnDestroy {
   }
 
   private async setup() {
-    this.routeSubscription = this.route.paramMap.subscribe(async paramMap => {
+    this.routeSubscription = this.route.paramMap.subscribe(async (paramMap) => {
       if (!paramMap.has('id')) {
-        this.navigateBack()
-        return
+        this.navigateBack();
+        return;
       }
-      const poolId = paramMap.get('id')
-      this.pool = this.findPoolWithId(poolId)
+      const poolId = paramMap.get('id');
+      this.pool = this.findPoolWithId(poolId);
       if (!this.pool) {
-        console.warn('pool id not found')
-        this.navigateBack()
-        return
+        console.warn('pool id not found');
+        this.navigateBack();
+        return;
       }
-      this.vaultContract = this.vaultService.contractAt(poolId)
-      console.log('vaultcontract = ', this.vaultContract)
-      if (!this.vaultContract) { 
-        this.navigateBack()
-        return
+      this.vaultContract = this.vaultService.contractAt(poolId);
+      console.log('vaultcontract = ', this.vaultContract);
+      if (!this.vaultContract) {
+        this.navigateBack();
+        return;
       }
-      this.asset = this.tokenService.contractAt(this.pool.asset.address)
-      console.log('asset = ', this.asset)
-      console.log('asset address = ', this.asset.address)
-      this.assetSymbol = await this.tokenService.symbol(this.asset)
-      this.vaultTokenSymbol = await this.tokenService.symbol(this.vaultContract)
+      this.asset = this.tokenService.contractAt(this.pool.asset.address);
+      console.log('asset = ', this.asset);
+      console.log('asset address = ', this.asset.address);
+      this.assetSymbol = await this.tokenService.symbol(this.asset);
+      this.vaultTokenSymbol = await this.tokenService.symbol(
+        this.vaultContract
+      );
 
-      await this.loadVaultStats()
-      await this.checkAllowance()
-      this.registerEventListeners()
-    })
+      await this.loadVaultStats();
+      await this.checkAllowance();
+      this.registerEventListeners();
+    });
   }
 
   private findPoolWithId(id: string): LendingPool | null {
     for (const pool of this.environmentService.environment.config.pools) {
       if (pool.address.toLowerCase() == id.toLocaleLowerCase()) {
-        return pool
+        return pool;
       }
     }
-    return null
+    return null;
   }
 
   private async loadVaultStats() {
-    const stats = await this.vaultService.getVaultStats(this.vaultContract)
-    console.log('stats = ', stats)
-    this.utilizationRate = ethers.utils.formatEther(stats.utilization.mul(100))
-    this.depositApy = ethers.utils.formatEther(stats.depositApr.mul(1000)) // todo: Should be .mul(100)
-    this.rewardsApy = ethers.utils.formatEther(stats.rewardsApr.mul(100))
-    this.totalVaultAssets = ethers.utils.formatEther(stats.liquidity)
+    const stats = await this.vaultService.getVaultStats(this.vaultContract);
+    console.log('stats = ', stats);
+    this.utilizationRate = ethers.utils.formatEther(stats.utilization.mul(100));
+    this.depositApy = ethers.utils.formatEther(stats.depositApr.mul(1000)); // todo: Should be .mul(100)
+    this.rewardsApy = ethers.utils.formatEther(stats.rewardsApr.mul(100));
+    this.totalVaultAssets = ethers.utils.formatEther(stats.liquidity);
     if (!this.wallet || !this.wallet.currentAccount) {
-      return
+      return;
     }
-    this.myAssetBalance = ethers.utils.formatEther(await this.tokenService.balanceOf(this.asset, this.wallet.currentAccount))
+    this.myAssetBalance = ethers.utils.formatEther(
+      await this.tokenService.balanceOf(this.asset, this.wallet.currentAccount)
+    );
 
     this.myVaultSharesBalance = ethers.utils.formatEther(
-      await this.tokenService.balanceOf(this.vaultContract, this.wallet.currentAccount))
-    
+      await this.tokenService.balanceOf(
+        this.vaultContract,
+        this.wallet.currentAccount
+      )
+    );
   }
 
   async approveAsset() {
     if (!this.wallet.currentAccount) {
-      this.alert.showConnectAlert()
-      return
+      this.alert.showConnectAlert();
+      return;
     }
     try {
-      this.showLoading('Waiting for Approval')
-      const totalSupply = await this.tokenService.totalSupply(this.asset)
-      const txHash = await this.tokenService.approve(this.asset, this.vaultContract.address, totalSupply)
-      console.log("Event", txHash)
-
+      this.showLoading('Waiting for Approval');
+      const totalSupply = await this.tokenService.totalSupply(this.asset);
+      const txHash = await this.tokenService.approve(
+        this.asset,
+        this.vaultContract.address,
+        totalSupply
+      );
+      console.log('Event', txHash);
     } catch (error) {
-      this.alert.showErrorAlert(error)
-      this.hideLoading()
+      this.alert.showErrorAlert(error);
+      this.hideLoading();
     }
   }
 
   async deposit() {
     if (!this.wallet.currentAccount) {
-      this.alert.showConnectAlert()
-      return
+      this.alert.showConnectAlert();
+      return;
     }
     try {
-      await this.showLoading('Waiting for Confirmation')
-      const amount = ethers.utils.parseUnits(this.depositInput.nativeElement.value.toString() ?? '0')
-      this.depositInput.nativeElement.value = ''
-      await this.vaultService.depositAsset(this.vaultContract, amount, this.wallet.currentAccount) 
+      await this.showLoading('Waiting for Confirmation');
+      const amount = ethers.utils.parseUnits(
+        this.depositInput.nativeElement.value.toString() ?? '0'
+      );
+      this.depositInput.nativeElement.value = '';
+      await this.vaultService.depositAsset(
+        this.vaultContract,
+        amount,
+        this.wallet.currentAccount
+      );
     } catch (error) {
-      await this.hideLoading()
-      this.alert.showErrorAlert(error)
+      await this.hideLoading();
+      this.alert.showErrorAlert(error);
     }
   }
 
   async redeem() {
     if (!this.wallet.currentAccount) {
-      this.alert.showConnectAlert()
-      return
+      this.alert.showConnectAlert();
+      return;
     }
     try {
-      await this.showLoading('Waiting for Confirmation')
-      const amount = ethers.utils.parseUnits(this.withdrawInput.nativeElement.value.toString() ?? '0')
-      this.withdrawInput.nativeElement.value = ''
-      await this.vaultService.redeem(this.vaultContract, amount, this.wallet.currentAccount) 
+      await this.showLoading('Waiting for Confirmation');
+      const amount = ethers.utils.parseUnits(
+        this.withdrawInput.nativeElement.value.toString() ?? '0'
+      );
+      this.withdrawInput.nativeElement.value = '';
+      await this.vaultService.redeem(
+        this.vaultContract,
+        amount,
+        this.wallet.currentAccount
+      );
     } catch (error) {
-      await this.hideLoading()
-      this.alert.showErrorAlert(error)
+      await this.hideLoading();
+      this.alert.showErrorAlert(error);
     }
-  }  
+  }
 
   fillMaxDeposit() {
-    this.depositInput.nativeElement.value = this.myAssetBalance
+    this.depositInput.nativeElement.value = this.myAssetBalance;
   }
 
   fillMaxWithdraw() {
-    this.withdrawInput.nativeElement.value = this.myVaultSharesBalance
+    this.withdrawInput.nativeElement.value = this.myVaultSharesBalance;
   }
 
-  navigateToMarkets(){
+  navigateToMarkets() {
     this.router.navigate(['/lend']);
   }
 
   private async registerEventListeners() {
-    this.assetApprovalSubjet = this.asset.on('Approval', async (account, spender, amount, event) => {
-      console.log('Approval: ', account, spender, amount, event)
-      if (account.toLowerCase() === this.wallet.currentAccount.toLowerCase()) {
-        this.showConfirmationModal(event)
-        this.hideLoading()
-        this.isApproved = true
+    this.assetApprovalSubjet = this.asset.on(
+      'Approval',
+      async (account, spender, amount, event) => {
+        console.log('Approval: ', account, spender, amount, event);
+        if (
+          account.toLowerCase() === this.wallet.currentAccount.toLowerCase()
+        ) {
+          if (!this.isApproved) {
+            this.hideLoading();
+            this.showConfirmationModal(event);
+          }
+          this.isApproved = true;
+        }
       }
-    }) 
+    );
 
-    this.depositEventListener = this.vaultContract.on('Deposit', async (from, to, amount, shares, event) => {
-      console.log('deposit posted: ', from, to, amount, shares)
-      if (from.toLowerCase() == this.wallet.currentAccount.toLowerCase()) {
-        this.hideLoading()
-        this.showConfirmationModal(event)
-        await this.loadVaultStats()
-        await this.vaultStatsService.loadStats(this.pool)
+    this.depositEventListener = this.vaultContract.on(
+      'Deposit',
+      async (from, to, amount, shares, event) => {
+        console.log('deposit posted: ', from, to, amount, shares);
+        if (from.toLowerCase() == this.wallet.currentAccount.toLowerCase()) {
+          this.hideLoading();
+          this.showConfirmationModal(event);
+          await this.loadVaultStats();
+          await this.vaultStatsService.loadStats(this.pool);
+        }
       }
-    })
-    
-    this.withdrawEventListener = this.vaultContract.on('Withdraw', async (from, to, amount, shares, event) => {
-      if (from.toLowerCase() == this.wallet.currentAccount.toLowerCase()) {
-        this.hideLoading()
-        this.showConfirmationModal(event)
-        await this.loadVaultStats();
-        await this.vaultStatsService.loadStats(this.pool)
-      }
-    })
+    );
 
-    this.wallet.accountSubject.subscribe(wallet => {
-      this.loadVaultStats()
-    })
+    this.withdrawEventListener = this.vaultContract.on(
+      'Withdraw',
+      async (from, to, amount, shares, event) => {
+        if (from.toLowerCase() == this.wallet.currentAccount.toLowerCase()) {
+          this.hideLoading();
+          this.showConfirmationModal(event);
+          await this.loadVaultStats();
+          await this.vaultStatsService.loadStats(this.pool);
+        }
+      }
+    );
+
+    this.wallet.accountSubject.subscribe((wallet) => {
+      this.loadVaultStats();
+    });
   }
 
-  async switchDepositCheddaTab(isDepositTab:boolean){
-    this.isDepositCheddaTab = isDepositTab
+  async switchDepositCheddaTab(isDepositTab: boolean) {
+    this.isDepositCheddaTab = isDepositTab;
   }
 
   showConfirmationModal(event) {
@@ -238,27 +279,31 @@ export class LendPoolDetailsPage implements OnInit, OnDestroy {
 
   private async checkAllowance() {
     if (!this.wallet || !this.wallet.currentAccount) {
-      return
+      return;
     }
-    const allowance = await this.tokenService.allowance(this.asset, this.wallet.currentAccount, this.vaultContract.address)
-    this.isApproved = allowance.gt(ethers.utils.parseUnits("1000"))
+    const allowance = await this.tokenService.allowance(
+      this.asset,
+      this.wallet.currentAccount,
+      this.vaultContract.address
+    );
+    this.isApproved = allowance.gt(ethers.utils.parseUnits('1000'));
   }
 
   private async showLoading(message: string) {
     this.loader = await this.modalController.create({
       component: LoadingModalComponent,
-      componentProps:{
-        'message': message
-      }
-    })
-    return await this.loader?.present()
+      componentProps: {
+        message: message,
+      },
+    });
+    return await this.loader?.present();
   }
 
   private async hideLoading() {
-    await this.loader?.dismiss()
+    await this.loader?.dismiss();
   }
 
   private navigateBack() {
-    this.navController.navigateBack('/lend')
+    this.navController.navigateBack('/lend');
   }
 }

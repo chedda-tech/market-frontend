@@ -16,7 +16,6 @@ import { GlobalAlertService } from 'src/app/shared/global-alert.service';
 import { NFTMetadata } from 'src/app/shared/models/nft.model';
 import { EnvironmentProviderService } from 'src/app/providers/environment-provider.service';
 
-
 enum BorrowMode {
   borrow = 'borrow',
   collateral = 'collateral',
@@ -86,7 +85,6 @@ export class BorrowPoolDetailsPage implements OnInit {
     private vaultStatsService: VaultStatsService,
     private router: Router,
     private environmentService: EnvironmentProviderService
-
   ) {}
 
   async ngOnInit() {
@@ -128,7 +126,6 @@ export class BorrowPoolDetailsPage implements OnInit {
       await this.checkAllowance();
       this.registerForEvents();
     });
-
   }
 
   private findPoolWithId(id: string): LendingPool | null {
@@ -140,9 +137,9 @@ export class BorrowPoolDetailsPage implements OnInit {
     return null;
   }
 
-  async switchBorrowCheddaTab(isBorrowTab:boolean){
-    this.isBorrowCheddaTab = isBorrowTab
-    this.selectedNfts = []
+  async switchBorrowCheddaTab(isBorrowTab: boolean) {
+    this.isBorrowCheddaTab = isBorrowTab;
+    this.selectedNfts = [];
   }
 
   onCollateralTypeChanged(selectValue: string) {
@@ -153,7 +150,7 @@ export class BorrowPoolDetailsPage implements OnInit {
     }
   }
 
-  navigateToMarkets(){
+  navigateToMarkets() {
     this.router.navigate(['/borrow']);
   }
 
@@ -173,13 +170,13 @@ export class BorrowPoolDetailsPage implements OnInit {
 
     if (found) {
       this.collateralTokenSymbol = symbol;
-      await this.checkCollateralPrice()
+      await this.checkCollateralPrice();
       await this.updateCollateralBalances();
       await this.registerCollateralEvents();
       await this.checkAllowance();
       if (this.collateralContract.isNFT) {
-        await this.fetchOwnedTokens()
-        await this.fetchDepositedNfts()
+        await this.fetchOwnedTokens();
+        await this.fetchDepositedNfts();
       }
     } else {
       this.alert.showToast('Invalid collateral');
@@ -188,11 +185,13 @@ export class BorrowPoolDetailsPage implements OnInit {
 
   private async checkCollateralPrice() {
     if (!this.collateralContract) {
-      return
+      return;
     }
-    console.log('checking collateral price: ')
-    const price = await this.priceFeed.getAssetPrice(this.collateralContract.address)
-    console.log('***price = ', ethers.utils.formatEther(price))
+    console.log('checking collateral price: ');
+    const price = await this.priceFeed.getAssetPrice(
+      this.collateralContract.address
+    );
+    console.log('***price = ', ethers.utils.formatEther(price));
   }
   private async updateCollateralBalances() {
     if (!(this.wallet && this.wallet.currentAccount)) {
@@ -212,7 +211,7 @@ export class BorrowPoolDetailsPage implements OnInit {
           this.collateralContract.address
         )
       ).amount
-    )
+    );
   }
 
   private async loadVaultStats() {
@@ -228,8 +227,8 @@ export class BorrowPoolDetailsPage implements OnInit {
           this.vaultContract,
           this.wallet.currentAccount
         );
-        const cv = ethers.utils.parseEther(collateralValue.toString())
-        console.log('collateralValue = ', collateralValue.toString())
+      const cv = ethers.utils.parseEther(collateralValue.toString());
+      console.log('collateralValue = ', collateralValue.toString());
       const maxLoanAmount = collateralValue.mul(this.maxLTV).div(100);
       const collateral = await this.vaultService.collateral(
         this.vaultContract,
@@ -260,7 +259,8 @@ export class BorrowPoolDetailsPage implements OnInit {
 
   fillMaxWithdraw() {
     this.setRepayMode(RepayMode.collateral);
-    this.withdrawCollateralInput.nativeElement.value = this.myCollateralDeposited;
+    this.withdrawCollateralInput.nativeElement.value =
+      this.myCollateralDeposited;
   }
 
   fillMaxRepay() {
@@ -297,12 +297,12 @@ export class BorrowPoolDetailsPage implements OnInit {
     try {
       await this.showLoading('Waiting for Confirmation');
       if (this.collateralContract.isNFT) {
-        const tokenIds = this.selectedNfts.map(t => t.edition.toString())
+        const tokenIds = this.selectedNfts.map((t) => t.edition.toString());
         await this.vaultService.addCollateral721(
-          this.vaultContract, 
+          this.vaultContract,
           this.collateralContract.address,
           tokenIds
-        )
+        );
       } else {
         const amount = ethers.utils.parseUnits(
           this.addCollateralInput.nativeElement.value.toString() ?? '0'
@@ -312,9 +312,8 @@ export class BorrowPoolDetailsPage implements OnInit {
           this.vaultContract,
           this.collateralContract.address,
           amount
-        ); 
+        );
       }
-      
     } catch (error) {
       this.hideLoading();
       this.alert.showErrorAlert(error);
@@ -329,13 +328,13 @@ export class BorrowPoolDetailsPage implements OnInit {
     try {
       await this.showLoading('Waiting for Confirmation');
       if (this.collateralContract.isNFT) {
-        const tokenIds = this.selectedNfts.map(t => t.edition.toString())
+        const tokenIds = this.selectedNfts.map((t) => t.edition.toString());
         await this.vaultService.removeCollateral721(
           this.vaultContract,
           this.collateralContract.address,
           tokenIds
-        )
-    } else {
+        );
+      } else {
         const amount = ethers.utils.parseUnits(
           this.withdrawCollateralInput.nativeElement.value.toString() ?? '0'
         );
@@ -346,7 +345,6 @@ export class BorrowPoolDetailsPage implements OnInit {
           amount
         );
       }
-      
     } catch (error) {
       this.hideLoading();
       this.alert.showErrorAlert(error);
@@ -425,7 +423,11 @@ export class BorrowPoolDetailsPage implements OnInit {
   }
 
   private async fetchOwnedTokens() {
-    if (!this.wallet || !this.wallet.currentAccount || !this.collateralContract) {
+    if (
+      !this.wallet ||
+      !this.wallet.currentAccount ||
+      !this.collateralContract
+    ) {
       return [];
     }
     const ownedTokenIds = await this.tokenService.ownedTokens(
@@ -439,28 +441,32 @@ export class BorrowPoolDetailsPage implements OnInit {
   }
 
   private async fetchDepositedNfts() {
-    if (!this.wallet || !this.wallet.currentAccount || !this.collateralContract) {
+    if (
+      !this.wallet ||
+      !this.wallet.currentAccount ||
+      !this.collateralContract
+    ) {
       return [];
-    } 
+    }
     const depositedTokenIds = await this.vaultService.accountCollateralTokenIds(
       this.vaultContract,
       this.wallet.currentAccount,
       this.collateralContract.address
-    )
+    );
     this.myNftsCollateral = await this.nftService.fetchNFTMetadata(
       this.collateralContract,
       depositedTokenIds
-    ); 
+    );
   }
 
   private async showLoading(message: string) {
     this.loader = await this.modalController.create({
       component: LoadingModalComponent,
-      componentProps:{
-        'message': message
-      }
-    })
-    return await this.loader?.present()
+      componentProps: {
+        message: message,
+      },
+    });
+    return await this.loader?.present();
   }
 
   private async hideLoading() {
@@ -476,23 +482,30 @@ export class BorrowPoolDetailsPage implements OnInit {
           if (
             account.toLowerCase() === this.wallet.currentAccount.toLowerCase()
           ) {
-            this.hideLoading();
-            this.showConfirmationModal(event)
+            if (!this.isApproved) {
+              this.hideLoading();
+              this.showConfirmationModal(event);
+            }
             this.isApproved = true;
           }
         }
       );
       this.collateralContract.on(
-        'ApprovalForAll', async (account, spender, approved) => {
-          if (account.toLowerCase() === this.wallet.currentAccount.toLowerCase() && approved) {
+        'ApprovalForAll',
+        async (account, spender, approved) => {
+          if (
+            account.toLowerCase() ===
+              this.wallet.currentAccount.toLowerCase() &&
+            approved
+          ) {
             this.hideLoading();
-            
+
             this.isApproved = true;
           }
         }
-      )
+      );
     } catch (err) {
-      console.log(err)
+      console.log(err);
     }
   }
 
@@ -503,12 +516,12 @@ export class BorrowPoolDetailsPage implements OnInit {
       async (token, by, amount, shares, event) => {
         if (by.toLowerCase() == this.wallet.currentAccount.toLowerCase()) {
           this.hideLoading();
-          this.showConfirmationModal(event)
+          this.showConfirmationModal(event);
           if (this.collateralContract.isNFT) {
-            await this.fetchOwnedTokens()
-            await this.fetchDepositedNfts()
+            await this.fetchOwnedTokens();
+            await this.fetchDepositedNfts();
           }
-          await this.loadVaultStats()
+          await this.loadVaultStats();
           await this.vaultStatsService.loadStats(this.pool);
         }
       }
@@ -519,34 +532,37 @@ export class BorrowPoolDetailsPage implements OnInit {
       async (token, address, type, amount, event) => {
         if (address.toLowerCase() == this.wallet.currentAccount.toLowerCase()) {
           this.hideLoading();
-          this.showConfirmationModal(event)
+          this.showConfirmationModal(event);
           if (this.collateralContract.isNFT) {
-            await this.fetchDepositedNfts()
-            await this.fetchOwnedTokens()
+            await this.fetchDepositedNfts();
+            await this.fetchOwnedTokens();
           }
-          await this.loadVaultStats()
+          await this.loadVaultStats();
           await this.vaultStatsService.loadStats(this.pool);
         }
       }
     );
 
-    this.borrowListener = this.vaultContract.on('OnLoanOpened', async (from, to, amount, shares, event) => {
-      if (from.toLowerCase() === this.wallet.currentAccount.toLowerCase()) {
-        this.hideLoading();
-        this.showConfirmationModal(event)
-        await this.loadVaultStats();
-        await this.vaultStatsService.loadStats(this.pool);
+    this.borrowListener = this.vaultContract.on(
+      'OnLoanOpened',
+      async (from, to, amount, shares, event) => {
+        if (from.toLowerCase() === this.wallet.currentAccount.toLowerCase()) {
+          this.hideLoading();
+          this.showConfirmationModal(event);
+          await this.loadVaultStats();
+          await this.vaultStatsService.loadStats(this.pool);
+        }
       }
-    });
+    );
     this.repayListener = this.vaultContract.on(
       'OnLoanRepaid',
       async (from, to, amount, shares, event) => {
         if (from.toLowerCase() == this.wallet.currentAccount.toLowerCase()) {
           this.hideLoading();
-          this.showConfirmationModal(event)
+          this.showConfirmationModal(event);
           await this.loadVaultStats();
           await this.vaultStatsService.loadStats(this.pool);
-    }
+        }
       }
     );
 
@@ -564,8 +580,8 @@ export class BorrowPoolDetailsPage implements OnInit {
 
   selectNFT(nft: NFTMetadata) {
     let index = -1;
-    this.setRepayMode(RepayMode.collateral)
-    this.setBorrowMode(BorrowMode.collateral)
+    this.setRepayMode(RepayMode.collateral);
+    this.setBorrowMode(BorrowMode.collateral);
     for (let i = 0; i < this.selectedNfts.length; i++) {
       if (nft.edition === this.selectedNfts[i].edition) {
         index = i;
@@ -573,11 +589,11 @@ export class BorrowPoolDetailsPage implements OnInit {
       }
     }
     if (index != -1) {
-      this.selectedNfts.splice(index, 1)
-      nft.isSelected = false
+      this.selectedNfts.splice(index, 1);
+      nft.isSelected = false;
     } else {
-      this.selectedNfts.push(nft)
-      nft.isSelected = true
+      this.selectedNfts.push(nft);
+      nft.isSelected = true;
     }
   }
 
